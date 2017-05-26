@@ -3,6 +3,9 @@ authors = ["Jonas Platte <jplatte+git@posteo.de>"]
 name = "mycelium"
 version = "0.1.0"
 
+[dependencies]
+mime_guess = "1.8.1"
+
 [dependencies.gtk]
-version = "0.1.3"
 features = ["v3_14"]
+version = "0.1.3"

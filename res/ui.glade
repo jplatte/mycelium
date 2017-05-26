@@ -9,7 +9,7 @@
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
-          <object class="GtkPlacesSidebar">
+          <object class="GtkPlacesSidebar" id="sidebar">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hscrollbar_policy">never</property>
@@ -22,7 +22,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkPaned">
+          <object class="GtkPaned" id="tree_paned">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
