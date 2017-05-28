@@ -1,3 +1,4 @@
+extern crate gio;
 extern crate gtk;
 extern crate mime_guess;
 
@@ -5,6 +6,17 @@ use std::io::{self, Write};
 use std::fs;
 use std::os::unix::ffi::OsStringExt;
 use std::str::from_utf8;
+
+// This apparently needs to come before the app module declaration for that to
+// be able to use the macro
+#[macro_use]
+mod util;
+
+mod ui {
+    pub mod app;
+
+    mod files_tree_view;
+}
 
 // TODO: Guess mime type based on file header (like Nautilus)
 
@@ -47,6 +59,6 @@ fn run() -> io::Result<()> {
 }
 
 fn main() {
-    gtk::init().expect("Failed to initialize GTK.");
-    run().unwrap();
+    let app = ui::app::App::new();
+    app.run();
 }
