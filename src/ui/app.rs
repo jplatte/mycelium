@@ -56,12 +56,12 @@ impl App {
     }
 
     pub fn run(self) {
-        // Convert the args to a Vec<&str>.  Application::run requires argv as &[&str]
+        // Convert the args to a Vec<&str>. Application::run requires argv as &[&str]
         // and envd::args() returns an iterator of Strings.
         let args = env::args().collect::<Vec<_>>();
         let args_refs = args.iter().map(|x| &x[..]).collect::<Vec<_>>();
 
         // Run the main loop.
-        self.gtk_app.run(args_refs.len() as i32, &args_refs);
+        self.gtk_app.run(&args_refs);
     }
 }
