@@ -1,5 +1,4 @@
 use std::env;
-use std::thread;
 
 use gio;
 use gtk;
@@ -8,7 +7,6 @@ use gtk::prelude::*;
 use super::files_tree_view::FilesTreeView;
 
 const APP_ID: &str = "org.jplatte.mycelium";
-const INITIAL_DIR: &str = "/"; // TODO
 
 pub struct App {
     /// GTK Application which runs the main loop.
@@ -24,8 +22,8 @@ impl App {
 
         let gtk_builder = gtk::Builder::new_from_string(include_str!("../../res/ui.glade"));
 
-        let files_tree_view_l = FilesTreeView::new();
-        let files_gtk_tree_view_l = files_tree_view_l.gtk_tree_view.clone();
+        let files_tree_view_l = FilesTreeView::new(env::home_dir().unwrap());
+        let files_gtk_tree_view_l = files_tree_view_l.tree_view.clone();
 
         gtk_app.connect_activate(move |app| {
             // Set up shutdown callback
@@ -37,26 +35,18 @@ impl App {
                 Inhibit(false)
             }));
 
-            let treeview_paned: gtk::Paned = gtk_builder.get_object("treeview_paned")
-                .expect("Couldn't find treeview_paned in ui file.");
-
-            let model = gtk::TreeStore::new(&[gtk::Type::String, gtk::Type::String]);
-            files_gtk_tree_view_l.set_model(&model);
-            files_gtk_tree_view_l.set_headers_visible(true);
-
-            let column = gtk::TreeViewColumn::new();
-            let name_renderer = gtk::CellRendererText::new();
-            column.pack_start(&name_renderer, true);
-            column.add_attribute(&name_renderer, "text", 0);
-
-            files_gtk_tree_view_l.append_column(&column);
-
-            treeview_paned.add1(&files_gtk_tree_view_l);
+            let files_scrolled_window_l: gtk::ScrolledWindow = gtk_builder.get_object("files_scrolled_window_l")
+                .expect("Couldn't find files_scrolled_window_l in ui file.");
+            files_scrolled_window_l.add(&files_gtk_tree_view_l);
 
             // Associate window with the Application and show it
             window.set_application(Some(app));
             window.show_all();
         });
+
+        //gtk_app.connect_handle_local_options(
+        // TODO: first positional argument = initial directory if present
+        //);
 
         App {
             gtk_app,

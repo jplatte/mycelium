@@ -24,14 +24,34 @@
           </packing>
         </child>
         <child>
-          <object class="GtkPaned" id="treeview_paned">
+          <object class="GtkPaned" id="files_paned">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <placeholder/>
+              <object class="GtkScrolledWindow" id="files_scrolled_window_l">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">False</property>
+                <property name="shrink">True</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkScrolledWindow" id="files_scrolled_window_r">
+                <property name="can_focus">True</property>
+                <property name="no_show_all">True</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
             </child>
           </object>
           <packing>
