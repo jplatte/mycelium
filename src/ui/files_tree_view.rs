@@ -1,6 +1,6 @@
+use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
-use std::os::unix::ffi::OsStringExt;
 
 use mime_guess;
 use gio;
@@ -27,6 +27,7 @@ impl FilesTreeView {
         };
 
         tree_view.build_ui();
+        // TODO: Show error message if update() returns Err(_)
         tree_view.update();
         tree_view
     }
@@ -75,12 +76,18 @@ impl FilesTreeView {
         }
     }
 
-    fn update(&self) {
-        // TODO: less unwrap()ing would be nice
+    fn update(&self) -> Result<(), Box<Error>> {
         // TODO: sort dir entries. alphabetical + directories first.
-        for e in fs::read_dir(&self.current_dir).unwrap() {
-            let entry = e.unwrap();
-            let file_name = String::from_utf8(entry.file_name().into_vec()).unwrap();
+        for e in fs::read_dir(&self.current_dir)? {
+            let entry = match e {
+                Ok(entry) => entry,
+                Err(_) => {
+                    // TODO: Show error message?
+                    continue
+                }
+            };
+
+            let file_name = entry.file_name().to_string_lossy().into_owned();
 
             // TODO: initial display with mime type guessing based on file extensions determining
             //       strategy, then refinement by looking at the files – visible ones first
@@ -105,6 +112,8 @@ impl FilesTreeView {
                     .unwrap_or_else(|| "[unknown]".to_owned())
             };
 
+            // This unwrap()s seem to never fail – even the '[unknown]' string,
+            // which isn't in the a/b format, doesn't result in None here.
             let mut icon = gio::content_type_get_icon(&mime_str).unwrap();
 
             // replace ugly "missing" icon – TODO: there's probably a better solution for this
@@ -119,5 +128,7 @@ impl FilesTreeView {
                 /* values   */ &[&file_name, &icon, &mime_str],
             );
         }
+
+        Ok(())
     }
 }
