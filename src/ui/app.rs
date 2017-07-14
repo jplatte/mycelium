@@ -27,7 +27,8 @@ impl App {
 
         gtk_app.connect_activate(move |app| {
             // Set up shutdown callback
-            let window: gtk::Window = gtk_builder.get_object("main_window")
+            let window: gtk::Window = gtk_builder
+                .get_object("main_window")
                 .expect("Couldn't find main_window in ui file.");
 
             window.connect_delete_event(clone!(app => move |_, _| {
@@ -35,7 +36,8 @@ impl App {
                 Inhibit(false)
             }));
 
-            let files_scrolled_window_l: gtk::ScrolledWindow = gtk_builder.get_object("files_scrolled_window_l")
+            let files_scrolled_window_l: gtk::ScrolledWindow = gtk_builder
+                .get_object("files_scrolled_window_l")
                 .expect("Couldn't find files_scrolled_window_l in ui file.");
             files_scrolled_window_l.add(&files_gtk_tree_view_l);
 

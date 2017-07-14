@@ -1,11 +1,11 @@
 use std::error::Error;
-use std::fs;
 use std::path::PathBuf;
 
-use mime_guess;
 use gio;
 use gtk;
 use gtk::prelude::*;
+
+use util;
 
 #[derive(Debug)]
 pub struct FilesTreeView {
@@ -77,44 +77,10 @@ impl FilesTreeView {
     }
 
     fn update(&self) -> Result<(), Box<Error>> {
-        // TODO: sort dir entries. alphabetical + directories first.
-        for e in fs::read_dir(&self.current_dir)? {
-            let entry = match e {
-                Ok(entry) => entry,
-                Err(_) => {
-                    // TODO: Show error message?
-                    continue
-                }
-            };
-
-            let file_name = entry.file_name().to_string_lossy().into_owned();
-
-            // TODO: initial display with mime type guessing based on file extensions determining
-            //       strategy, then refinement by looking at the files – visible ones first
-            //       (or only visible ones?) if possible
-            let mime_str = if entry.path().is_dir() {
-                "inode/directory".to_owned()
-            } else {
-                file_name
-                    .bytes()
-                    .rev()
-                    .position(|x| x == b'.')
-                    .map(|rev_idx| file_name.len() - rev_idx)
-                    .and_then(|idx| if idx == 1 {
-                        // If the only '.' in the file name is at the start, regard it as having no
-                        // file extension
-                        None
-                    } else {
-                        Some(&file_name[idx..])
-                    })
-                    .and_then(|x| mime_guess::get_mime_type_opt(x))
-                    .map(|m| m.to_string())
-                    .unwrap_or_else(|| "[unknown]".to_owned())
-            };
-
+        for entry in util::read_dir(&self.current_dir)? {
             // This unwrap()s seem to never fail – even the '[unknown]' string,
             // which isn't in the a/b format, doesn't result in None here.
-            let mut icon = gio::content_type_get_icon(&mime_str).unwrap();
+            let mut icon = gio::content_type_get_icon(&entry.mime_str).unwrap();
 
             // replace ugly "missing" icon – TODO: there's probably a better solution for this
             if icon.to_string().unwrap().ends_with("-x-generic") {
@@ -122,10 +88,14 @@ impl FilesTreeView {
             }
 
             self.tree_store.insert_with_values(
-                /* parent   */ None,
-                /* position */ None, // append
-                /* colums   */ &[0, 1, 2],
-                /* values   */ &[&file_name, &icon, &mime_str],
+                // parent
+                None,
+                // position
+                None,
+                // colums
+                &[0, 1, 2],
+                // values
+                &[&entry.name, &icon, &entry.mime_str],
             );
         }
 

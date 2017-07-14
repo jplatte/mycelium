@@ -1,3 +1,5 @@
+#![feature(conservative_impl_trait)]
+
 extern crate gio;
 extern crate gtk;
 extern crate mime_guess;
