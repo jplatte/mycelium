@@ -1,11 +1,9 @@
-use std::error::Error;
-use std::path::PathBuf;
+use std::{error::Error, path::PathBuf};
 
 use gio;
-use gtk;
-use gtk::prelude::*;
+use gtk::{self, prelude::*};
 
-use util;
+use crate::util;
 
 #[derive(Debug)]
 pub struct FilesTreeView {
@@ -33,7 +31,7 @@ impl FilesTreeView {
     }
 
     fn build_ui(&self) {
-        self.tree_view.set_model(&self.tree_store);
+        self.tree_view.set_model(Some(&self.tree_store));
         self.tree_view.set_headers_visible(true);
         self.tree_view.set_show_expanders(false);
 
@@ -76,14 +74,14 @@ impl FilesTreeView {
         }
     }
 
-    fn update(&self) -> Result<(), Box<Error>> {
+    fn update(&self) -> Result<(), Box<dyn Error>> {
         for entry in util::read_dir(&self.current_dir)? {
             // This unwrap()s seem to never fail – even the '[unknown]' string,
             // which isn't in the a/b format, doesn't result in None here.
             let mut icon = gio::content_type_get_icon(&entry.mime_str).unwrap();
 
             // replace ugly "missing" icon – TODO: there's probably a better solution for this
-            if icon.to_string().unwrap().ends_with("-x-generic") {
+            if icon.to_string().ends_with("-x-generic") {
                 icon = gio::Icon::new_for_string("gtk-file").unwrap();
             }
 

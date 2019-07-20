@@ -1,7 +1,6 @@
 use std::env;
 
-use gio;
-use gtk;
+use gio::prelude::*;
 use gtk::prelude::*;
 
 use super::files_tree_view::FilesTreeView;
@@ -22,7 +21,7 @@ impl App {
 
         let gtk_builder = gtk::Builder::new_from_string(include_str!("../../res/ui.glade"));
 
-        let files_tree_view_l = FilesTreeView::new(env::home_dir().unwrap());
+        let files_tree_view_l = FilesTreeView::new(dirs::home_dir().unwrap());
         let files_gtk_tree_view_l = files_tree_view_l.tree_view.clone();
 
         gtk_app.connect_activate(move |app| {
@@ -61,9 +60,8 @@ impl App {
         // Convert the args to a Vec<&str>. Application::run requires argv as &[&str]
         // and envd::args() returns an iterator of Strings.
         let args = env::args().collect::<Vec<_>>();
-        let args_refs = args.iter().map(|x| &x[..]).collect::<Vec<_>>();
 
         // Run the main loop.
-        self.gtk_app.run(&args_refs);
+        self.gtk_app.run(&args);
     }
 }
